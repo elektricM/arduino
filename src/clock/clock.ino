@@ -51,7 +51,7 @@ void loop()
 {
   for (int i = 0; i < 10; i++)
   {
-    rotate(-512 * 11);
+    rotate(512 * 11);
   }
   //  delay(1000);
 }
