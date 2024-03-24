@@ -165,7 +165,7 @@ void setup()
   }
 
   timeClient.begin();
-  timeClient.setTimeOffset(19800);
+  timeClient.setTimeOffset(3600); // GMT+1 (France)
   server.begin();
 
   approach();
