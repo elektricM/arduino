@@ -64,30 +64,56 @@ int seq[8][4] = {
     {HIGH, HIGH, LOW, LOW},
     {LOW, HIGH, LOW, LOW}};
 
-void rotate(int step)
+// update stepper motor phase helper
+void _updateStepperPhase(int &phase, const bool clockwise)
 {
-  static int phase = 0;
-  int i, j;
-  int delta = (step > 0) ? 1 : 7;
-  int dt = 20;
+  constexpr int kDeltaClockwise = 1;
+  constexpr int kDeltaCounterClockwise = 7;
+  constexpr int kMaxPhases = 8;
 
-  step = (step > 0) ? step : -step;
-  for (j = 0; j < step; j++)
-  {
-    phase = (phase + delta) % 8;
-    for (i = 0; i < 4; i++)
-    {
-      digitalWrite(port[i], seq[phase][i]);
-    }
-    delay(dt);
-    if (dt > delaytime)
-      dt--;
-  }
-  // power cut
-  for (i = 0; i < 4; i++)
+  phase = (clockwise) ? (phase + kDeltaClockwise) % kMaxPhases : (phase + kDeltaCounterClockwise) % kMaxPhases;
+}
+
+// turn off the stepper motor helper
+void _powerCut(int port[], const size_t numPorts)
+{
+  for (size_t i = 0; i < numPorts; ++i)
   {
     digitalWrite(port[i], LOW);
   }
+}
+
+/**
+ * Rotates the stepper motor by the specified amount of steps
+ * Positive numbers indicate clockwise rotation, negative numbers counter-clockwise
+ */
+void rotate(int step)
+{
+  static int currentPhase = 0;
+  const int directionFactor = (step > 0) ? 1 : -1;
+  const int targetSteps = abs(step);
+  const int initialDelay = 20;
+  int delayDuration = initialDelay;
+
+  // loop through the required number of steps
+  for (int i = 0; i < targetSteps; ++i)
+  {
+    _updateStepperPhase(currentPhase, step > 0);
+
+    for (size_t portIndex = 0; portIndex < 4; ++portIndex) // apply voltage
+    {
+      digitalWrite(port[portIndex], seq[currentPhase][portIndex]);
+    }
+
+    delay(delayDuration); // wait
+
+    if (delayDuration > 1) // gradually decrease the wait period until reaching minimum allowed delay
+    {
+      --delayDuration;
+    }
+  }
+
+  _powerCut(port, 4); // turn off the stepper motor once the rotation is complete
 }
 
 void approach()
