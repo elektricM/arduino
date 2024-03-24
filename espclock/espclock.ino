@@ -50,16 +50,8 @@ unsigned long previousMillis = 0; // will store last time LED was updated
 const long interval = 5000;       // interval at which to blink (milliseconds)
 int ledState = LOW;               // ledState used to set the LED
 
-///////////////////////////////////////////////////////////////////////
-/////////////// - --- clock code ---------------///////////////////////
-///////////////////////////////////////////////////////////////////////
-
 // wait for a single step of stepper
 int delaytime = 2;
-
-///////////////////////////////////////////////////////////////////////
-/////////////// - --- clock code ---------------///////////////////////
-///////////////////////////////////////////////////////////////////////
 
 // sequence of stepper motor control
 int seq[8][4] = {
@@ -156,11 +148,9 @@ void setup()
   timeClient.setTimeOffset(19800);
   server.begin();
 
-  /////////////// clock code //////////////////////
   rotate(-20); // for approach run
   rotate(20);  // approach run without heavy load
   // rotate(STEPS_PER_ROTATION / 60);
-  /////////////// clock code //////////////////////
 }
 
 void increment_time(int val)
