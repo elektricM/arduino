@@ -100,57 +100,61 @@ void setup()
 {
   pinMode(led, OUTPUT);
 
-  pinMode(port[0], OUTPUT);
-  pinMode(port[1], OUTPUT);
-  pinMode(port[2], OUTPUT);
-  pinMode(port[3], OUTPUT);
+  for (int i = 0; i < 4; i++)
+  {
+    pinMode(port[i], OUTPUT);
+  }
 
   Serial.begin(115200);
   Serial.println("Booting");
-  Serial.begin(115200);
-  Serial.println("Booting");
+
   WiFiManager wifiManager;
   wifiManager.autoConnect("AutoConnectAP");
 
-  ArduinoOTA.onStart([]()
+  ArduinoOTA.onStart([&]()
                      {
     String type;
-    if (ArduinoOTA.getCommand() == U_FLASH)
+    if (ArduinoOTA.getCommand() == U_FLASH) {
       type = "sketch";
-    else // U_SPIFFS
+    } else {
       type = "filesystem";
+    }
 
-    // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
     Serial.println("Start updating " + type); });
+
   ArduinoOTA.onEnd([]()
                    { Serial.println("\nEnd"); });
+
   ArduinoOTA.onProgress([](unsigned int progress, unsigned int total)
                         { Serial.printf("Progress: %u%%\r", (progress / (total / 100))); });
+
   ArduinoOTA.onError([](ota_error_t error)
                      {
     Serial.printf("Error[%u]: ", error);
-    if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
-    else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
-    else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
-    else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
-    else if (error == OTA_END_ERROR) Serial.println("End Failed"); });
+
+    if (error == OTA_AUTH_ERROR) {
+      Serial.println("Auth Failed");
+    } else if (error == OTA_BEGIN_ERROR) {
+      Serial.println("Begin Failed");
+    } else if (error == OTA_CONNECT_ERROR) {
+      Serial.println("Connect Failed");
+    } else if (error == OTA_RECEIVE_ERROR) {
+      Serial.println("Receive Failed");
+    } else if (error == OTA_END_ERROR) {
+      Serial.println("End Failed");
+    } });
+
   ArduinoOTA.begin();
   Serial.println("Ready");
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
 
   if (!MDNS.begin("wifi-clock"))
-  { // Start the mDNS responder for esp8266.local
+  {
     Serial.println("Error setting up MDNS responder!");
   }
 
-  // Initialize a NTPClient to get time
   timeClient.begin();
-  // Set offset time in seconds to adjust for your timezone, for example:
-  // GMT +1 = 3600
-  // GMT +8 = 28800
-  // GMT -1 = -3600
-  // GMT 0 = 0
   timeClient.setTimeOffset(19800);
   server.begin();
 
