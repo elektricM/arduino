@@ -16,7 +16,7 @@
 
 /* Useful variables */
 const int led = 2;               // ESP8266 pin to which onboard LED is connected
-int port[4] = {1, 3, 5, 4};      // ports used to control the stepper motor
+int port[4] = {16, 14, 12, 13};  // ports used to control the stepper motor
 #define MILLIS_PER_MIN 60000     // milliseconds per minute (60000 theoretically)
 #define STEPS_PER_ROTATION 30720 // steps for a full turn of minute rotor 4096 * 90 / 12 = 30720
 
