@@ -33,7 +33,7 @@ WiFiServer server(80);
 String header;
 
 // Auxiliar variables to store the current output state
-boolean initClockDone = false;
+bool initClockDone = false;
 String output4State = "off";
 
 // Current time
@@ -241,7 +241,7 @@ void ota_error(ota_error_t error)
  * HTTP request handling to interact with the clock
  * TODO: make this more readable
  */
-void handleHttpRequest(WifiClient &client)
+void handleHttpRequest(WiFiClient &client)
 {                                // If a new client connects,
   Serial.println("New Client."); // print a message out in the serial port
   String currentLine = "";       // make a String to hold incoming data from the client
@@ -271,7 +271,7 @@ void handleHttpRequest(WifiClient &client)
           // turns the GPIOs on and off
           if (header.indexOf("GET /set_time") >= 0)
           {
-            if (init_clock_done == "no")
+            if (initClockDone == false)
             {
               set_time_flag = true;
             }
@@ -300,7 +300,7 @@ void handleHttpRequest(WifiClient &client)
 
           // Web Page Heading
           client.println("<body><h1>keep clock at 12'O clock position and press SET TIME button to Auto calibrate</h1>");
-          if (init_clock_done == "yes")
+          if (initClockDone == true)
           {
             client.println("<p>Clock INIT - completed</p>");
           }
@@ -401,10 +401,10 @@ void loop()
   ArduinoOTA.handle();
   WiFiClient client = server.available(); // Listen for incoming clients
 
-  if (set_time_flag && !init_clock_done)
+  if (set_time_flag && !initClockDone)
   {
     update_ntp_time();
-    init_clock_done = true;
+    initClockDone = true;
     set_time_flag = false;
   }
 
