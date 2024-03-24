@@ -193,34 +193,29 @@ void decrement_time(int val)
 
 void update_ntp_time()
 {
-  long calc_minutes = 0;
+  long calculatedMinutes = 0;
   timeClient.update();
-  int currentHour = timeClient.getHours();
-  Serial.print("Hour: ");
-  Serial.println(currentHour);
-  int currentMinute = timeClient.getMinutes();
-  // Serial.print("Minutes: ");
-  // Serial.println(currentMinute);
-  if (currentHour >= 12)
+
+  int hours = timeClient.getHours();
+  Serial.printf("Hour: %,d\n", hours);
+
+  int minutes = timeClient.getMinutes();
+  Serial.printf("Min: %,d\n", minutes);
+
+  hours = (hours >= 12) ? (hours - 12) : hours;
+
+  if (hours <= 6)
   {
-    currentHour = currentHour - 12;
+    calculatedMinutes = (hours * 60) + minutes;
+    increment_time(calculatedMinutes);
   }
-  if (currentHour <= 6)
+  else if (hours > 6)
   {
-    calc_minutes = (currentHour * 60) + currentMinute;
-    // calc_minutes = calc_minutes + (calc_minutes/60);
-    increment_time(calc_minutes);
-  }
-  if (currentHour > 6)
-  {
-    currentHour = currentHour - 6;
-    calc_minutes = (currentHour * 60) + currentMinute;
-    calc_minutes = 360 - calc_minutes;
-    // calc_minutes = calc_minutes - (calc_minutes/60);
-    decrement_time(calc_minutes);
+    hours -= 6;
+    calculatedMinutes = 360 - ((hours * 60) + minutes);
+    decrement_time(calculatedMinutes);
   }
 }
-
 const char *ota_error_message(ota_error_t error)
 {
   switch (error)
