@@ -194,10 +194,12 @@ void update_ntp_time()
   timeClient.update();
 
   int hours = timeClient.getHours();
-  Serial.printf("Hour: %,d\n", hours);
+  Serial.print("Hour: ");
+  Serial.println(hours);
 
   int minutes = timeClient.getMinutes();
-  Serial.printf("Min: %,d\n", minutes);
+  Serial.print("Min: ");
+  Serial.println(minutes);
 
   hours = (hours >= 12) ? (hours - 12) : hours;
 
