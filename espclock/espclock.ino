@@ -50,9 +50,6 @@ unsigned long previousMillis = 0; // will store last time LED was updated
 const long interval = 5000;       // interval at which to blink (milliseconds)
 int ledState = LOW;               // ledState used to set the LED
 
-// wait for a single step of stepper
-int delaytime = 2;
-
 // sequence of stepper motor control
 int seq[8][4] = {
     {LOW, HIGH, HIGH, LOW},
