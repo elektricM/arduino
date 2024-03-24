@@ -129,20 +129,7 @@ void setup()
                         { Serial.printf("Progress: %u%%\r", (progress / (total / 100))); });
 
   ArduinoOTA.onError([](ota_error_t error)
-                     {
-    Serial.printf("Error[%u]: ", error);
-
-    if (error == OTA_AUTH_ERROR) {
-      Serial.println("Auth Failed");
-    } else if (error == OTA_BEGIN_ERROR) {
-      Serial.println("Begin Failed");
-    } else if (error == OTA_CONNECT_ERROR) {
-      Serial.println("Connect Failed");
-    } else if (error == OTA_RECEIVE_ERROR) {
-      Serial.println("Receive Failed");
-    } else if (error == OTA_END_ERROR) {
-      Serial.println("End Failed");
-    } });
+                     { ota_error(error); });
 
   ArduinoOTA.begin();
   Serial.println("Ready");
@@ -206,6 +193,30 @@ void update_ntp_time()
     // calc_minutes = calc_minutes - (calc_minutes/60);
     decrement_time(calc_minutes);
   }
+}
+
+const char *ota_error_message(ota_error_t error)
+{
+  switch (error)
+  {
+  case OTA_AUTH_ERROR:
+    return "Auth Failed";
+  case OTA_BEGIN_ERROR:
+    return "Begin Failed";
+  case OTA_CONNECT_ERROR:
+    return "Connect Failed";
+  case OTA_RECEIVE_ERROR:
+    return "Receive Failed";
+  case OTA_END_ERROR:
+    return "End Failed";
+  default:
+    return "";
+  }
+}
+
+void ota_error(ota_error_t error)
+{
+  Serial.printf("Error[%u]: %s\n", error, ota_error_message(error));
 }
 
 void loop()
