@@ -90,6 +90,12 @@ void rotate(int step)
   }
 }
 
+void approach()
+{
+  rotate(-20); // for approach run
+  rotate(20);  // approach run without heavy load
+}
+
 void setup()
 {
   pinMode(led, OUTPUT);
@@ -148,8 +154,7 @@ void setup()
   timeClient.setTimeOffset(19800);
   server.begin();
 
-  rotate(-20); // for approach run
-  rotate(20);  // approach run without heavy load
+  approach();
   // rotate(STEPS_PER_ROTATION / 60);
 }
 
@@ -157,8 +162,7 @@ void increment_time(int val)
 {
   long pos;
   pos = (STEPS_PER_ROTATION * val) / 60;
-  rotate(-20); // for approach run
-  rotate(20);  // approach run without heavy load
+  approach();
   rotate(pos);
 }
 
@@ -166,8 +170,7 @@ void decrement_time(int val)
 {
   long pos;
   pos = (STEPS_PER_ROTATION * val) / 60;
-  rotate(-20); // for approach run
-  rotate(20);  // approach run without heavy load
+  approach();
   rotate(-pos);
 }
 
