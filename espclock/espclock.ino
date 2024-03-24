@@ -11,7 +11,6 @@
 #include <WiFiManager.h>         // https://github.com/tzapu/WiFiManager
 #include <ESP8266mDNS.h>        // mDNS lib
 #include <NTPClient.h>
-#include <ESP8266mDNS.h>
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
 
