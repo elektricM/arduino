@@ -49,16 +49,8 @@ unsigned long previousMillis = 0; // will store last time LED was updated
 const long interval = 5000;       // interval at which to blink (milliseconds)
 int ledState = LOW;               // ledState used to set the LED
 
-///////////////////////////////////////////////////////////////////////
-/////////////// - --- clock code ---------------///////////////////////
-///////////////////////////////////////////////////////////////////////
-
 // wait for a single step of stepper
 int delaytime = 2;
-
-///////////////////////////////////////////////////////////////////////
-/////////////// - --- clock code ---------------///////////////////////
-///////////////////////////////////////////////////////////////////////
 
 // sequence of stepper motor control
 int seq[8][4] = {
@@ -107,10 +99,10 @@ void setup()
 {
   pinMode(led, OUTPUT);
 
-  pinMode(port[0], OUTPUT);
-  pinMode(port[1], OUTPUT);
-  pinMode(port[2], OUTPUT);
-  pinMode(port[3], OUTPUT);
+  for (int i = 0; i < 4; i++)
+  {
+    pinMode(port[i], OUTPUT);
+  }
 
   Serial.begin(115200);
   Serial.println("Booting");
@@ -158,7 +150,7 @@ void setup()
   // GMT +8 = 28800
   // GMT -1 = -3600
   // GMT 0 = 0
-  timeClient.setTimeOffset(19800);
+  timeClient.setTimeOffset(3600); // GMT+1 (France)
   server.begin();
 
   approach();
