@@ -33,7 +33,7 @@ WiFiServer server(80);
 String header;
 
 // Auxiliar variables to store the current output state
-String init_clock_done = "no";
+bool init_clock_done = false;
 String output4State = "off";
 
 // Current time
@@ -208,10 +208,10 @@ void loop()
   ArduinoOTA.handle();
   WiFiClient client = server.available(); // Listen for incoming clients
 
-  if ((set_time_flag) && (init_clock_done == "no"))
+  if ((set_time_flag) && (init_clock_done == false))
   {
     update_ntp_time();
-    init_clock_done = "yes";
+    init_clock_done = true;
     set_time_flag = false;
   }
 
@@ -245,7 +245,7 @@ void loop()
             // turns the GPIOs on and off
             if (header.indexOf("GET /set_time") >= 0)
             {
-              if (init_clock_done == "no")
+              if (init_clock_done == false)
               {
                 set_time_flag = true;
               }
@@ -265,17 +265,19 @@ void loop()
             client.println("<link rel=\"icon\" href=\"data:,\">");
             // CSS to style the on/off buttons
             // Feel free to change the background-color and font-size attributes to fit your preferences
-            client.println("<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}");
-            client.println(".button {background-color: #195B6A; border: none; color: white; padding: 16px 40px; width: 350px; border-radius: 8px;");
+            client.println("<style>html {font-family: Verdana; display: inline-block; margin: 0px auto; text-align: center;}");
+            client.println("body {background-color: #303030}");
+            client.println("h1 {color: #303030}");
+            client.println(".button {background-color: #3241A3; border: none; color: white; padding: 16px 40px; width: 350px; border-radius: 8px;");
             client.println("text-decoration: none; font-size: 30px; margin: 2px; cursor: pointer;}");
-            client.println(".button2 {background-color: #195B6A; width: 350px; border-radius: 8px;}");
-            client.println(".button3 {background-color: #195B6A; width: 350px; border-radius: 8px;}");
+            client.println(".button2 {background-color: #3241A3; width: 350px; border-radius: 8px;}");
+            client.println(".button3 {background-color: #3241A3; width: 350px; border-radius: 8px;}");
             client.println("</style></head>");
 
             // Web Page Heading
             client.println("<body><h1>Clock - Martin & JG</h1><br/>");
             client.println("<body><h3>Put the clock at 12'O clock position and press the SET TIME button to auto calibrate</h3>");
-            if (init_clock_done == "yes")
+            if (init_clock_done == false)
             {
               client.println("<p>Clock INIT - completed</p>");
             }
