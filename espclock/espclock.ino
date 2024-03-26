@@ -181,8 +181,8 @@ void update_ntp_time()
   Serial.print("Hour: ");
   Serial.println(currentHour);
   int currentMinute = timeClient.getMinutes();
-  // Serial.print("Minutes: ");
-  // Serial.println(currentMinute);
+  Serial.print("Minutes: ");
+  Serial.println(currentMinute);
   if (currentHour >= 12)
   {
     currentHour = currentHour - 12;
@@ -273,7 +273,8 @@ void loop()
             client.println("</style></head>");
 
             // Web Page Heading
-            client.println("<body><h1>keep clock at 12'O clock position and press SET TIME button to Auto calibrate</h1>");
+            client.println("<body><h1>Clock - Martin & JG</h1><br/>");
+            client.println("<body><h3>Put the clock at 12'O clock position and press the SET TIME button to auto calibrate</h3>");
             if (init_clock_done == "yes")
             {
               client.println("<p>Clock INIT - completed</p>");
