@@ -107,7 +107,7 @@ void setup()
   Serial.begin(115200);
   Serial.println("Booting");
   WiFiManager wifiManager;
-  wifiManager.autoConnect("AutoConnectAP");
+  wifiManager.autoConnect("Martinou", "soleil123"); // TODO: hardcoded password
 
   ArduinoOTA.onStart([]()
                      {
@@ -267,7 +267,8 @@ void loop()
             // Feel free to change the background-color and font-size attributes to fit your preferences
             client.println("<style>html {font-family: Verdana; display: inline-block; margin: 0px auto; text-align: center;}");
             client.println("body {background-color: #303030}");
-            client.println("h1 {color: #303030}");
+            client.println("h1 {color: white}");
+            client.println("h3 {color: white}");
             client.println(".button {background-color: #3241A3; border: none; color: white; padding: 16px 40px; width: 350px; border-radius: 8px;");
             client.println("text-decoration: none; font-size: 30px; margin: 2px; cursor: pointer;}");
             client.println(".button2 {background-color: #3241A3; width: 350px; border-radius: 8px;}");
@@ -279,9 +280,9 @@ void loop()
             client.println("<body><h3>Put the clock at 12'O clock position and press the SET TIME button to auto calibrate</h3>");
             if (init_clock_done == false)
             {
-              client.println("<p>Clock INIT - completed</p>");
+              client.println("<h3>Clock init completed succesfully!</h3>");
             }
-            client.println("<p><a href=\"/set_time\"><button class=\"button\">SET TIME</button></a></p>");
+            client.println("<p><a href=\"/set_time\"><button class=\"button\">Set time</button></a></p>");
             client.println("<p><a href=\"/adjust_1_min\"><button class=\"button button2\">Increment 1 min</button></a></p>");
             client.println("<p><a href=\"/adjust_minus_1_min\"><button class=\"button button3\">Decrement 1 min</button></a></p>");
             // Display current state, and ON/OFF buttons for GPIO 5
