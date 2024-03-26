@@ -107,7 +107,7 @@ void setup()
   Serial.begin(115200);
   Serial.println("Booting");
   WiFiManager wifiManager;
-  wifiManager.autoConnect("Martinou", "soleil123"); // TODO: hardcoded password
+  wifiManager.autoConnect("WifiClock", "amogus"); // TODO: hardcoded password
 
   ArduinoOTA.onStart([]()
                      {
