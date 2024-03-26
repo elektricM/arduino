@@ -71,6 +71,12 @@ int seq[8][4] = {
     {HIGH, HIGH, LOW, LOW},
     {LOW, HIGH, LOW, LOW}};
 
+void approach()
+{
+  rotate(-20); // for approach run
+  rotate(20);  // approach run without heavy load
+}
+
 void rotate(int step)
 {
   static int phase = 0;
@@ -106,8 +112,6 @@ void setup()
   pinMode(port[2], OUTPUT);
   pinMode(port[3], OUTPUT);
 
-  Serial.begin(115200);
-  Serial.println("Booting");
   Serial.begin(115200);
   Serial.println("Booting");
   WiFiManager wifiManager;
@@ -157,19 +161,15 @@ void setup()
   timeClient.setTimeOffset(19800);
   server.begin();
 
-  /////////////// clock code //////////////////////
-  rotate(-20); // for approach run
-  rotate(20);  // approach run without heavy load
+  approach();
   // rotate(STEPS_PER_ROTATION / 60);
-  /////////////// clock code //////////////////////
 }
 
 void increment_time(int val)
 {
   long pos;
   pos = (STEPS_PER_ROTATION * val) / 60;
-  rotate(-20); // for approach run
-  rotate(20);  // approach run without heavy load
+  approach();
   rotate(pos);
 }
 
@@ -177,8 +177,7 @@ void decrement_time(int val)
 {
   long pos;
   pos = (STEPS_PER_ROTATION * val) / 60;
-  rotate(-20); // for approach run
-  rotate(20);  // approach run without heavy load
+  approach();
   rotate(-pos);
 }
 
@@ -350,8 +349,7 @@ void loop()
   }
   prev_min = min;
   pos = (STEPS_PER_ROTATION * min) / 60;
-  rotate(-20); // for approach run
-  rotate(20);  // approach run without heavy load
+  approach();
   if (pos - prev_pos > 0)
   {
     rotate(pos - prev_pos);
