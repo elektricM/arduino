@@ -107,7 +107,7 @@ void setup()
   Serial.begin(115200);
   Serial.println("Booting");
   WiFiManager wifiManager;
-  wifiManager.autoConnect("WifiClock", "amogus"); // TODO: hardcoded password
+  wifiManager.autoConnect("Livebox-4E2C", "Clench-Service4-Spoiler"); // TODO: hardcoded password
 
   ArduinoOTA.onStart([]()
                      {
@@ -147,10 +147,11 @@ void setup()
   timeClient.begin();
   // Set offset time in seconds to adjust for your timezone, for example:
   // GMT +1 = 3600
-  // GMT +8 = 28800
-  // GMT -1 = -3600
+  // GMT +2 = 7200
   // GMT 0 = 0
-  timeClient.setTimeOffset(3600); // GMT+1 (France)
+
+  // timeClient.setTimeOffset(3600); // GMT+1 (France)
+  timeClient.setTimeOffset(7200); // GMT+2 (France)
   server.begin();
 
   approach();
