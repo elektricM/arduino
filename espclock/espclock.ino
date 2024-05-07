@@ -1,3 +1,4 @@
+
 ////////////////////////////////////////////////////////////////////////
 // Clock Project
 // Baud: 115200
@@ -13,8 +14,10 @@
 #include <NTPClient.h>
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
+#include <ESP8266HTTPClient.h>
 
 /* Useful variables */
+WiFiClient client;
 const int led = 2;               // ESP8266 pin to which onboard LED is connected
 int port[4] = {16, 14, 12, 13};  // ports used to control the stepper motor
 #define MILLIS_PER_MIN 60000     // milliseconds per minute (60000 theoretically)
@@ -107,7 +110,7 @@ void setup()
   Serial.begin(115200);
   Serial.println("Booting");
   WiFiManager wifiManager;
-  wifiManager.autoConnect("Martinou", "soleil123"); // TODO: hardcoded password
+  wifiManager.autoConnect("WiFi_Profs", "urm816UK"); // TODO: hardcoded password
 
   ArduinoOTA.onStart([]()
                      {
@@ -134,9 +137,19 @@ void setup()
   ArduinoOTA.begin();
   Serial.println("Ready");
   Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
+  Serial.println(WiFi.localIP()); // http://wifi-clock.local/
+  /*   curl \
+    -d "SSH login: WiFi.localIP()" \
+    ntfy.sh/wificlockprojetincroyable */
 
-  // http://wifi-clock.local/
+  HTTPClient http;
+  http.begin(client, "http://ntfy.sh/wificlockprojetwow");
+  http.addHeader("Content-Type", "text/plain");
+  int httpCode = http.POST(String(WiFi.localIP().toString()));
+  String payload = http.getString();
+  Serial.println(httpCode);
+  Serial.println(payload);
+  http.end();
 
   if (!MDNS.begin("wifi-clock"))
   { // Start the mDNS responder for esp8266.local
