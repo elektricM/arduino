@@ -1,4 +1,5 @@
 
+
 ////////////////////////////////////////////////////////////////////////
 // Clock Project
 // Baud: 115200
@@ -15,6 +16,7 @@
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
 #include <ESP8266HTTPClient.h>
+#include <ArduinoJson.h>
 
 /* Useful variables */
 WiFiClient client;
@@ -37,10 +39,12 @@ String header;
 
 // Auxiliar variables to store the current output state
 bool init_clock_done = false;
-String output4State = "off";
+// String output4State = "off";
 
 // Current time
-/* millis() reference: Returns the number of milliseconds passed since the Arduino board began running the current program. This number will overflow (go back to zero), after approximately 50 days. */
+/* millis() reference: Returns the number of milliseconds passed
+since the Arduino board began running the current program.
+This number will overflow (go back to zero), after approximately 50 days. */
 unsigned long currentTime = millis();
 // Previous time
 unsigned long previousTime = 0;
@@ -110,7 +114,7 @@ void setup()
   Serial.begin(115200);
   Serial.println("Booting");
   WiFiManager wifiManager;
-  wifiManager.autoConnect("WiFi_Profs", "urm816UK"); // TODO: hardcoded password
+  wifiManager.autoConnect("WiFi_Profs", "urm816UK"); // WARN: hardcoded :)
 
   ArduinoOTA.onStart([]()
                      {
@@ -145,7 +149,25 @@ void setup()
   HTTPClient http;
   http.begin(client, "http://ntfy.sh/wificlockprojetwow");
   http.addHeader("Content-Type", "text/plain");
-  int httpCode = http.POST(String(WiFi.localIP().toString()));
+  String message = "UP " + WiFi.localIP().toString() + String(timeClient.getHours()) + String(timeClient.getMinutes()); // TODO: check if this works
+  int httpCode = http.POST(message);
+  String payload = http.getString();
+  Serial.println(httpCode);
+  Serial.println(payload);
+  http.end();
+
+  // get timezone from http://worldtimeapi.org/api/ip
+  // raw_offset from json
+  http.begin(client, "http://worldtimeapi.org/api/ip");
+  http.addHeader("Content-Type", "text/plain");
+  int httpCode = http.GET();
+  if (httpCode == 200)
+  {
+    String jsonString = http.getString();
+    DynamicJsonDocument jsonDoc(2048);
+    jsonDoc.parse(jsonString);
+    int raw_offset = jsonDoc["raw_offset"]; // TODO: check if this works
+  }
   String payload = http.getString();
   Serial.println(httpCode);
   Serial.println(payload);
@@ -163,27 +185,26 @@ void setup()
   // GMT +8 = 28800
   // GMT -1 = -3600
   // GMT 0 = 0
-  timeClient.setTimeOffset(3600); // GMT+1 (France)
+  timeClient.setTimeOffset(raw_offset); // GMT+1 (France)
   server.begin();
 
   approach();
-  // rotate(STEPS_PER_ROTATION / 60);
 }
 
-void increment_time(int val)
+/* Adjusts time in minutes */
+void adjust_time(int val, bool increment = true)
 {
   long pos;
   pos = (STEPS_PER_ROTATION * val) / 60;
   approach();
-  rotate(pos);
-}
-
-void decrement_time(int val)
-{
-  long pos;
-  pos = (STEPS_PER_ROTATION * val) / 60;
-  approach();
-  rotate(-pos);
+  if (increment)
+  {
+    rotate(pos);
+  }
+  else
+  {
+    rotate(-pos);
+  }
 }
 
 void update_ntp_time()
@@ -204,7 +225,7 @@ void update_ntp_time()
   {
     calc_minutes = (currentHour * 60) + currentMinute;
     // calc_minutes = calc_minutes + (calc_minutes/60);
-    increment_time(calc_minutes);
+    adjust_time(calc_minutes, true);
   }
   if (currentHour > 6)
   {
@@ -212,7 +233,7 @@ void update_ntp_time()
     calc_minutes = (currentHour * 60) + currentMinute;
     calc_minutes = 360 - calc_minutes;
     // calc_minutes = calc_minutes - (calc_minutes/60);
-    decrement_time(calc_minutes);
+    adjust_time(calc_minutes, false);
   }
 }
 
@@ -265,13 +286,20 @@ void loop()
             }
             else if (header.indexOf("GET /adjust_1_min") >= 0)
             {
-              increment_time(1);
+              adjust_time(1, true);
             }
             else if (header.indexOf("GET /adjust_minus_1_min") >= 0)
             {
-              increment_time(-1);
+              adjust_time(1, false);
             }
-
+            else if (header.indexOf("GET /adjust_1_hour") >= 0)
+            {
+              adjust_time(60, true);
+            }
+            else if (header.indexOf("GET /adjust_minus_1_hour") >= 0)
+            {
+              adjust_time(60, false);
+            }
             // Display the HTML web page
             client.println("<!DOCTYPE html><html>");
             client.println("<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
@@ -284,8 +312,8 @@ void loop()
             client.println("h3 {color: white}");
             client.println(".button {background-color: #3241A3; border: none; color: white; padding: 16px 40px; width: 350px; border-radius: 8px;");
             client.println("text-decoration: none; font-size: 30px; margin: 2px; cursor: pointer;}");
-            client.println(".button2 {background-color: #3241A3; width: 350px; border-radius: 8px;}");
-            client.println(".button3 {background-color: #3241A3; width: 350px; border-radius: 8px;}");
+            client.println(".button2 {background-color: #33CEFF; width: 350px; border-radius: 8px;}");
+            client.println(".button3 {background-color: #723D9E; width: 350px; border-radius: 8px;}");
             client.println("</style></head>");
 
             // Web Page Heading
@@ -298,6 +326,8 @@ void loop()
             client.println("<p><a href=\"/set_time\"><button class=\"button\">Set time</button></a></p>");
             client.println("<p><a href=\"/adjust_1_min\"><button class=\"button button2\">Increment 1 min</button></a></p>");
             client.println("<p><a href=\"/adjust_minus_1_min\"><button class=\"button button3\">Decrement 1 min</button></a></p>");
+            client.println("<p><a href=\"/adjust_1_hour\"><button class=\"button button2\">Increment 1 hour</button></a></p>");
+            client.println("<p><a href=\"/adjust_minus_1_hour\"><button class=\"button button3\">Decrement 1 hour</button></a></p>");
             // Display current state, and ON/OFF buttons for GPIO 5
             // client.println("<p>GPIO 5 - State " + output5State + "</p>");
             // If the output5State is off, it displays the ON button
@@ -327,8 +357,8 @@ void loop()
             currentLine = "";
           }
         }
-        else if (c != '\r')
-        {                   // if you got anything else but a carriage return character,
+        else if (c != '\r') // anything else but CR
+        {
           currentLine += c; // add it to the end of the currentLine
         }
       }
