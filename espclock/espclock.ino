@@ -1,5 +1,3 @@
-
-
 ////////////////////////////////////////////////////////////////////////
 // Clock Project
 // Baud: 115200
@@ -114,6 +112,7 @@ void setup()
   Serial.begin(115200);
   Serial.println("Booting");
   WiFiManager wifiManager;
+  wifiManager.setConfigPortalTimeout(180);
   wifiManager.autoConnect("WiFi_Profs", "urm816UK"); // WARN: hardcoded :)
 
   ArduinoOTA.onStart([]()
@@ -146,32 +145,39 @@ void setup()
     -d "SSH login: WiFi.localIP()" \
     ntfy.sh/wificlockprojetincroyable */
 
-  HTTPClient http;
-  http.begin(client, "http://ntfy.sh/wificlockprojetwow");
-  http.addHeader("Content-Type", "text/plain");
-  String message = "UP " + WiFi.localIP().toString() + String(timeClient.getHours()) + String(timeClient.getMinutes()); // TODO: check if this works
-  int httpCode = http.POST(message);
-  String payload = http.getString();
-  Serial.println(httpCode);
-  Serial.println(payload);
-  http.end();
+  int n = WiFi.scanNetworks(false, true);
+
+  String ssid;
+  uint8_t encryptionType;
+  int32_t RSSI;
+  uint8_t *BSSID;
+  int32_t channel;
+  bool isHidden;
+
+  for (int i = 0; i < n; i++)
+  {
+    WiFi.getNetworkInfo(i, ssid, encryptionType, RSSI, BSSID, channel, isHidden);
+    Serial.printf("%d: %s, Ch:%d (%ddBm) %s %s\n", i + 1, ssid.c_str(), channel, RSSI, encryptionType == ENC_TYPE_NONE ? "open" : "", isHidden ? "hidden" : "");
+  }
 
   // get timezone from http://worldtimeapi.org/api/ip
   // raw_offset from json
-  http.begin(client, "http://worldtimeapi.org/api/ip");
-  http.addHeader("Content-Type", "text/plain");
-  int httpCode = http.GET();
-  if (httpCode == 200)
-  {
-    String jsonString = http.getString();
-    DynamicJsonDocument jsonDoc(2048);
-    jsonDoc.parse(jsonString);
-    int raw_offset = jsonDoc["raw_offset"]; // TODO: check if this works
-  }
+  /*
+    http.begin(client, "http://worldtimeapi.org/api/ip");
+    http.addHeader("Content-Type", "text/plain");
+    int httpCode = http.GET();
+    if (httpCode == 200)
+    {
+      String jsonString = http.getString();
+      DynamicJsonDocument jsonDoc(2048);
+      deserializeJson(jsonDoc, jsonString);
+      int raw_offset = jsonDoc["raw_offset"]; // TODO: check if this works
+    }
   String payload = http.getString();
   Serial.println(httpCode);
   Serial.println(payload);
   http.end();
+*/
 
   if (!MDNS.begin("wifi-clock"))
   { // Start the mDNS responder for esp8266.local
@@ -182,13 +188,26 @@ void setup()
   timeClient.begin();
   // Set offset time in seconds to adjust for your timezone, for example:
   // GMT +1 = 3600
+  // GMT +2 = 7200
   // GMT +8 = 28800
   // GMT -1 = -3600
   // GMT 0 = 0
-  timeClient.setTimeOffset(raw_offset); // GMT+1 (France)
+  timeClient.setTimeOffset(7200); // GMT+2 (France)
   server.begin();
 
+  HTTPClient http;
+  http.begin(client, "http://ntfy.sh/wificlockprojetwow");
+  http.addHeader("Content-Type", "text/plain");
+  String message = "UP http://" + WiFi.localIP().toString(); // TODO: check if this works
+  Serial.println(message);
+  int httpCode = http.POST(message);
+  String payload = http.getString();
+  Serial.println(httpCode);
+  Serial.println(payload);
+  http.end();
+
   approach();
+  // update_ntp_time();
 }
 
 /* Adjusts time in minutes */
